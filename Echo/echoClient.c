@@ -2,6 +2,7 @@
 #include <ws2tcpip.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -14,9 +15,10 @@ int main(int argc, char **argv) {
     struct sockaddr_in servaddr;
     char sendline[MAXLINE], recvline[MAXLINE];
     int n;
+    FILE *fp;
 
-    if (argc != 2) {
-        printf("Usage: %s <IP address of the server>\n", argv[0]);
+    if (argc != 3) {
+        printf("Usage: %s <IP address of the server> <file path>\n", argv[0]);
         exit(1);
     }
 
@@ -47,21 +49,48 @@ int main(int argc, char **argv) {
         exit(3);
     }
 
-    // Chat loop
-    while (fgets(sendline, MAXLINE, stdin) != NULL) {
-        send(sockfd, sendline, (int)strlen(sendline), 0);
-
-        n = recv(sockfd, recvline, MAXLINE, 0);
-        if (n == 0) {
-            printf("The server terminated prematurely\n");
-            closesocket(sockfd);
-            WSACleanup();
-            exit(4);
-        }
-        recvline[n] = '\0'; // null-terminate
-        printf("String received from the server: %s", recvline);
+    // Open file
+    fp = fopen(argv[2], "rb");
+    if (fp == NULL) {
+        printf("Cannot open file: %s\n", argv[2]);
+        closesocket(sockfd);
+        WSACleanup();
+        exit(4);
     }
 
+    // Send file name first 
+   /* const char *filepath = argv[2];
+    const char *basename = strrchr(filepath, '\\');
+    if (!basename) basename = strrchr(filepath, '/');
+    basename = basename ? basename + 1 : filepath;
+    int fname_len = strlen(basename);
+    if (send(sockfd, basename, fname_len, 0) != fname_len) {
+        printf("Error sending file name\n");
+        fclose(fp);
+        closesocket(sockfd);
+        WSACleanup();
+        exit(5);
+    }*/
+
+    // Send file contents
+    while ((n = fread(sendline, 1, MAXLINE, fp)) > 0) {
+        int sent = 0;
+        while (sent < n) {
+            int bytes = send(sockfd, sendline + sent, n - sent, 0);
+            if (bytes == SOCKET_ERROR) {
+                printf("Error sending file data\n");
+                fclose(fp);
+                closesocket(sockfd);
+                WSACleanup();
+                exit(6);
+            }
+            sent += bytes;
+        }
+    }
+
+    printf("File sent successfully.\n");
+
+    fclose(fp);
     closesocket(sockfd);
     WSACleanup();
     return 0;

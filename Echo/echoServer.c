@@ -2,6 +2,7 @@
 #include <ws2tcpip.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -16,6 +17,8 @@ int main() {
     int n;
     int clilen;
     char buf[MAXLINE];
+    char filename[MAXLINE];
+    FILE *fp;
 
     // Initialize Winsock
     if (WSAStartup(MAKEWORD(2,2), &wsaData) != 0) {
@@ -65,12 +68,32 @@ int main() {
                inet_ntoa(cliaddr.sin_addr), 
                ntohs(cliaddr.sin_port));
 
-        while ((n = recv(connfd, buf, MAXLINE, 0)) > 0) {
-            buf[n] = '\0'; // null-terminate
-            printf("Received: %s\n", buf);
-            send(connfd, buf, n, 0);
+        int fname_len = recv(connfd, filename, MAXLINE, 0);
+        if (fname_len <= 0) {
+            printf("Failed to receive file name\n");
+            closesocket(connfd);
+            continue;
+        }
+        filename[fname_len] = '\0';
+
+        // Prepare saved file name
+        char saved_filename[MAXLINE * 2];
+        snprintf(saved_filename, sizeof(saved_filename), "saved_file:%s", filename);
+
+        fp = fopen(saved_filename, "wb");
+        if (fp == NULL) {
+            printf("Cannot open file to write\n");
+            closesocket(connfd);
+            continue;
         }
 
+        // Receive file data and write to file
+        while ((n = recv(connfd, buf, MAXLINE, 0)) > 0) {
+            fwrite(buf, 1, n, fp);
+        }
+
+        printf("File received and saved as %s\n", saved_filename);
+        fclose(fp);
         closesocket(connfd);
     }
 
