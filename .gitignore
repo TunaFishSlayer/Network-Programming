@@ -6,3 +6,9 @@ Echo/server.exe
 UDP/client.exe
 UDP/relay.exe
 UDP/server.exe
+.vscode/c_cpp_properties.jsonZone.Identifier
+*.Identifier
+*.o
+/FileSharingP2P/.vscode
+.vscode/c_cpp_properties.json
+*.txt
