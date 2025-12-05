@@ -194,7 +194,7 @@ int download_file_chunked(const char* filehash, const char* filename,
                     bitmap[i] = 1;
                     chunk_downloaded = 1;
                     total_downloaded_chunks++;
-                    printf("✓ Chunk %d/%d (Total: %d/%d)\n", i + 1, total_chunks, total_downloaded_chunks, total_chunks);
+                    printf("Chunk %d/%d (Total: %d/%d)\n", i + 1, total_chunks, total_downloaded_chunks, total_chunks);
                 } else {
                     retry_count++;
                     printf("Chunk %d không đầy đủ, retry %d/3\n", i, retry_count);
@@ -222,7 +222,7 @@ int download_file_chunked(const char* filehash, const char* filename,
         if (fp) {
             fwrite(file_data, 1, file_size, fp);
             fclose(fp);
-            printf("\n✓ Download hoàn tất: %s\n", filename);
+            printf("\nDownload hoàn tất: %s\n", filename);
             printf("  Lưu tại: %s\n", filepath);
             
             // Báo cáo server rằng download xong

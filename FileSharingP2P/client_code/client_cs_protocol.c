@@ -95,9 +95,6 @@ SearchResponse search_file(const char* keyword) {
         remaining -= bytes;
     }
     
-    printf("DEBUG CLIENT: Received %d bytes for SearchResponse (expected %lu)\n", 
-           total_bytes, sizeof(SearchResponse));
-    
     return response;
 }
 
@@ -113,7 +110,7 @@ FindResponse find_peers_for_file(const char* filehash) {
     strcpy(msg.email, current_email);
     strcpy(msg.access_token, current_token);  // Gửi token
     
-    printf("DEBUG CLIENT: Sending FIND request for hash: %s\n", filehash);  // In toàn bộ hash
+    printf("DEBUG CLIENT: Sending FIND request for hash: %s\n", filehash);  
     
     send(server_sock, &msg, sizeof(Message), 0);
     
@@ -131,16 +128,6 @@ FindResponse find_peers_for_file(const char* filehash) {
         total_bytes += bytes;
         remaining -= bytes;
     }
-    
-    if (total_bytes > 0) {
-        printf("DEBUG CLIENT: First byte is: %02x\n", (unsigned char)buffer[0]);
-    }
-    // Dump first 32 bytes
-    printf("DEBUG CLIENT: First 32 bytes received: ");
-    for (int i = 0; i < 32 && i < total_bytes; i++) {
-        printf("%02x ", (unsigned char)buffer[i]);
-    }
-    printf("\n");
     
     // Deserialize
     deserialize_find_response(buffer, &response);
@@ -231,9 +218,9 @@ void unpublish_file(const char* filename) {
     recv(server_sock, &response, sizeof(Message), 0);
     
     if (response.command == RESP_SUCCESS) {
-        printf("✓ Hủy công bố file thành công!\n");
+        printf("Hủy công bố file thành công!\n");
     } else {
-        printf("✗ Hủy công bố file thất bại!\n");
+        printf("Hủy công bố file thất bại!\n");
     }
 }
 

@@ -15,6 +15,13 @@ int server_sock = -1;
 int p2p_listening_port = 0;
 char client_ip[MAX_IP];
 
+// Simple request id generator (atomic via GCC builtin)
+static uint32_t req_counter = 0;
+
+uint32_t get_next_request_id(void) {
+    return (uint32_t)__sync_add_and_fetch(&req_counter, 1);
+}
+
 // Tính SHA256 hash của file
 void calculate_file_hash(const char* filepath, char* hash_output) {
     FILE* fp = fopen(filepath, "rb");

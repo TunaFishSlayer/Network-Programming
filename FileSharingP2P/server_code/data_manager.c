@@ -293,9 +293,6 @@ int unpublish_file(const char* filehash, const char* owner_email) {
     return file_removed;
 }
 
-// ================================================================
-//              SESSION & VERIFICATION FUNCTIONS
-// ================================================================
 
 char* create_session(const char* email) {
     pthread_mutex_lock(&sessions_mutex);

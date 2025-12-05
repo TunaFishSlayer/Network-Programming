@@ -74,7 +74,9 @@ typedef struct {
     int chunk_size;
     char access_token[64];
     int status;
-    uint32_t validation_checksum;  // Để validate data integrity
+    uint32_t request_id;          // ID của request để map response trong chế độ bất đồng bộ
+    int original_request;         // Server sẽ echo lại request command gốc
+    uint32_t validation_checksum; // Để validate data integrity
 } Message;
 
 // Thông tin file trong kết quả tìm kiếm
